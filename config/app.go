@@ -1,9 +1,9 @@
 package config
 
-import "database/sql"
+import "github.com/jmoiron/sqlx"
 
 type Application struct {
-	MySql *sql.DB
+	MySql *sqlx.DB
 }
 
 func App() Application {

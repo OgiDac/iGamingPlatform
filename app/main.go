@@ -15,6 +15,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// @Summary      Health Check
+// @Description  Just returns OK
+// @Tags         test
+// @Success      200  {string}  string  "ok"
+// @Router       /health [get]
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("ok"))
+}
+
+// @title           iGaming Platform API
+// @version         1.0
+// @description     API documentation for the iGaming Platform
+// @host            localhost:8081
+// @BasePath        /
 func main() {
 
 	app := config.App()

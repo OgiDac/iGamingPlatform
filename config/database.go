@@ -1,20 +1,21 @@
 package config
 
 import (
-	"database/sql"
 	"fmt"
+
+	"github.com/jmoiron/sqlx"
 )
 
-func NewDbConnection() *sql.DB {
+func NewDbConnection() *sqlx.DB {
 	dsn := "root:1234@tcp(localhost:3306)/igaming"
-	db, err := sql.Open("mysql", dsn)
+	db, err := sqlx.Open("mysql", dsn)
 	if err != nil {
 		fmt.Println("Error connection to the database")
 	}
 	return db
 }
 
-func CloseDbConnection(db *sql.DB) {
+func CloseDbConnection(db *sqlx.DB) {
 	if db == nil {
 		return
 	}

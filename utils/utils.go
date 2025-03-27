@@ -1,9 +1,12 @@
 package utils
 
 import (
-	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
+
+	"github.com/jmoiron/sqlx"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func JSON(w http.ResponseWriter, code int, obj interface{}) {
@@ -13,9 +16,65 @@ func JSON(w http.ResponseWriter, code int, obj interface{}) {
 	enc.Encode(obj)
 }
 
-func MigrateDB(db *sql.DB) {
+func MigrateDB(db *sqlx.DB) {
 	// TODO add migration script
-	db.Exec("")
+	_, err := db.Exec(CreatePlayers)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var countPlayers int
+	var countTournaments int
+	err = db.Get(&countPlayers, "SELECT COUNT(*) FROM players")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if countPlayers == 0 {
+		_, err = db.Exec(InsertPlayers)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	_, err = db.Exec(CreateTournaments)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = db.Get(&countTournaments, "SELECT COUNT(*) FROM tournaments")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if countTournaments == 0 {
+		_, err = db.Exec(InsertTournaments)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	_, err = db.Exec(`DROP PROCEDURE IF EXISTS DistributePrizes`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = db.Exec(CreatePrizeDistributionSP)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	encryptedPassword, err := bcrypt.GenerateFromPassword(
+		[]byte("test1234"),
+		bcrypt.DefaultCost,
+	)
+
+	_, err = db.Exec(`UPDATE players SET players.password = ?`, encryptedPassword)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = db.Exec(CreatePlayerTournaments)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func SetCookie(w http.ResponseWriter, name string, value string) {

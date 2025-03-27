@@ -1,13 +1,19 @@
 package router
 
 import (
-	"database/sql"
 	"time"
 
+	"github.com/OgiDac/iGamingPlatform/api/controllers"
+	"github.com/OgiDac/iGamingPlatform/repository"
+	"github.com/OgiDac/iGamingPlatform/usecase"
 	"github.com/gorilla/mux"
+	"github.com/jmoiron/sqlx"
 )
 
-func NewLoginRouter(timeout time.Duration, db *sql.DB, r *mux.Router) {
-
-	r.HandleFunc("/login", nil).Methods("POST")
+func NewLoginRouter(timeout time.Duration, db *sqlx.DB, r *mux.Router) {
+	pr := repository.NewPlayerRepository(db)
+	lc := &controllers.LoginController{
+		LoginUseCase: usecase.NewLoginUseCase(pr, timeout),
+	}
+	r.HandleFunc("/login", lc.Login).Methods("POST")
 }
