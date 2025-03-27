@@ -17,4 +17,5 @@ func Setup(timeout time.Duration, db *sqlx.DB, r *mux.Router) {
 	NewPlayerRouter(timeout, db, public)
 	NewTournamentRouter(timeout, db, private)
 	NewLoginRouter(timeout, db, public)
+	NewPlayerTournamentRouter(timeout, db, private)
 }

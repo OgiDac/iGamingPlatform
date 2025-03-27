@@ -29,7 +29,7 @@ func NewPlayerRepository(db *sqlx.DB) PlayerRepository {
 }
 
 func (r *playerRepository) UpdateAccountBalance(ctx context.Context, tx *sqlx.Tx, playerId int, amount float64) error {
-	_, err := tx.NamedExec("UPDATE players SET accountBalance = accountBalance + ? WHERE id = :id", amount)
+	_, err := tx.Exec("UPDATE players SET accountBalance = accountBalance + ? WHERE id = ?", amount, playerId)
 	if err != nil {
 		tx.Rollback()
 		return err

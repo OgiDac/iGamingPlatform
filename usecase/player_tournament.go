@@ -36,6 +36,7 @@ func (p *playerTournamentUseCase) MakeBet(c context.Context, playerTournamentReq
 	var playerTorunamentRecord domain.PlayerTournament
 	var playerTorunamentResponse domain.PlayerTournamentResponse
 	tx, err := p.db.Beginx()
+	defer tx.Commit()
 	if err != nil {
 		return nil, err
 	}
@@ -78,9 +79,17 @@ func (p *playerTournamentUseCase) MakeBet(c context.Context, playerTournamentReq
 	return &playerTorunamentResponse, nil
 }
 
-func NewPlayerTournamentUseCase(playerTournamentRepository repository.PlayerTournamentRepository, contextTimeout time.Duration) domain.PlayerTournamentUseCase {
+func NewPlayerTournamentUseCase(
+	playerTournamentRepository repository.PlayerTournamentRepository,
+	playerRepository repository.PlayerRepository,
+	tournamentRepository repository.TournamentRepository,
+	contextTimeout time.Duration,
+	db *sqlx.DB) domain.PlayerTournamentUseCase {
 	return &playerTournamentUseCase{
 		playerTournamentRepository: playerTournamentRepository,
+		tournamentRepository:       tournamentRepository,
+		playerRepository:           playerRepository,
 		contextTimeout:             contextTimeout,
+		db:                         db,
 	}
 }

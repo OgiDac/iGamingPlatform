@@ -7,7 +7,7 @@ import (
 )
 
 func NewDbConnection() *sqlx.DB {
-	dsn := "root:1234@tcp(localhost:3306)/igaming"
+	dsn := "root:1234@tcp(localhost:3306)/igaming?parseTime=true"
 	db, err := sqlx.Open("mysql", dsn)
 	if err != nil {
 		fmt.Println("Error connection to the database")

@@ -2,7 +2,7 @@ package utils
 
 const CreatePlayers = `
 CREATE TABLE IF NOT EXISTS players (
-	id SERIAL PRIMARY KEY,
+	id INT AUTO_INCREMENT PRIMARY KEY,
 	name TEXT NOT NULL,
 	password TEXT NOT NULL,
 	email TEXT NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS players (
 
 const CreateTournaments = `
 CREATE TABLE IF NOT EXISTS tournaments (
-	id SERIAL PRIMARY KEY,
+	id INT AUTO_INCREMENT PRIMARY KEY,
 	name TEXT NOT NULL,
 	prizePool DOUBLE PRECISION NOT NULL,
 	startDate DATETIME NOT NULL,
@@ -21,11 +21,13 @@ CREATE TABLE IF NOT EXISTS tournaments (
 
 const CreatePlayerTournaments = `
 CREATE TABLE IF NOT EXISTS player_tournaments (
-	id SERIAL PRIMARY KEY,
-	player_id INTEGER NOT NULL REFERENCES players(id) ON DELETE CASCADE,
-	tournament_id INTEGER NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
-	score FLOAT NOT NULL
-	UNIQUE KEY unique_player_tournament (player_id, tournament_id)
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	player_id INT NOT NULL,
+	tournament_id INT NOT NULL,
+	score FLOAT NOT NULL,
+	UNIQUE KEY unique_player_tournament (player_id, tournament_id),
+	FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE,
+	FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
 );`
 
 const InsertPlayers = `
@@ -53,9 +55,10 @@ CREATE PROCEDURE DistributePrizes(IN tournamentId INT)
 BEGIN
     WITH ranked AS (
         SELECT
-            id,
-            RANK() OVER (ORDER BY accountBalance DESC) AS r
-        FROM players
+            player_id,
+            RANK() OVER (ORDER BY score DESC) AS r
+        FROM player_tournaments
+        WHERE player_tournaments.tournament_id = tournament_id 
     )
     UPDATE players
     JOIN ranked ON players.id = ranked.id
