@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"github.com/OgiDac/iGamingPlatform/config"
@@ -20,13 +19,13 @@ func (lc *LoginController) Login(w http.ResponseWriter, r *http.Request) {
 
 	var request domain.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		utils.JSON(w, http.StatusBadRequest, errors.New(err.Error()))
+		utils.JSON(w, http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	accessToken, refreshToken, err := lc.LoginUseCase.Login(ctx, request, lc.Env)
 	if err != nil {
-		utils.JSON(w, http.StatusBadRequest, errors.New(err.Error()))
+		utils.JSON(w, http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 

@@ -33,9 +33,6 @@ func main() {
 
 	app := config.App()
 	env := app.Env
-
-	fmt.Println("Loaded CONN_STRING:", env.ConnString)
-	fmt.Println("Loaded addr:", env.ServerAddress)
 	db := app.MySql
 	defer app.CloseDatabaseConnection()
 

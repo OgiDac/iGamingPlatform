@@ -20,4 +20,5 @@ func NewPlayerTournamentRouter(timeout time.Duration, db *sqlx.DB, r *mux.Router
 
 	group := r.PathPrefix("/player-tournament").Subrouter()
 	group.HandleFunc("/{tournamentId}/bet", ptc.MakeBet).Methods("PUT")
+	group.HandleFunc("/{tournamentId}/rank-list", ptc.GetRankingList).Methods("GET")
 }

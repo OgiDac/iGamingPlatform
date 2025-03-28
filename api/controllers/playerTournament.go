@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -27,14 +26,14 @@ func (ptc *PlayerTorunamentController) MakeBet(w http.ResponseWriter, r *http.Re
 
 	tournamentId, err := strconv.Atoi(tournamentIdString)
 	if err != nil {
-		utils.JSON(w, http.StatusBadRequest, errors.New(err.Error()))
+		utils.JSON(w, http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 	}
 
 	var body struct {
 		Bet float64 `json:"bet"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		utils.JSON(w, http.StatusBadRequest, errors.New(err.Error()))
+		utils.JSON(w, http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 	playerTorunamentRequest := domain.PlayerTournamentRequest{
@@ -44,10 +43,31 @@ func (ptc *PlayerTorunamentController) MakeBet(w http.ResponseWriter, r *http.Re
 	}
 	response, err := ptc.PlayerTournamentUseCase.MakeBet(ctx, playerTorunamentRequest)
 	if err != nil {
-		utils.JSON(w, http.StatusBadRequest, errors.New(err.Error()))
+		utils.JSON(w, http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	utils.JSON(w, http.StatusOK, response)
+	return
+}
+
+func (ptc *PlayerTorunamentController) GetRankingList(w http.ResponseWriter, r *http.Request) {
+	ctx := context.WithValue(r.Context(), "player_id", r.Context().Value("player_id"))
+
+	pathVars := mux.Vars(r)
+	tournamentIdString := pathVars["tournamentId"]
+
+	tournamentId, err := strconv.Atoi(tournamentIdString)
+	if err != nil {
+		utils.JSON(w, http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+	}
+
+	players, err := ptc.PlayerTournamentUseCase.GetRankingList(ctx, tournamentId)
+	if err != nil {
+		utils.JSON(w, http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	utils.JSON(w, http.StatusOK, players)
 	return
 }

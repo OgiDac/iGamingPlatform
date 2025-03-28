@@ -18,5 +18,5 @@ func NewPlayerRouter(timeout time.Duration, db *sqlx.DB, r *mux.Router) {
 
 	group := r.PathPrefix("/player").Subrouter()
 
-	group.HandleFunc("/list", pc.GetPlayers).Methods("GET")
+	group.HandleFunc("/players", pc.GetPlayers).Methods("GET")
 }

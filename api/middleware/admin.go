@@ -9,7 +9,7 @@ import (
 	"github.com/OgiDac/iGamingPlatform/utils"
 )
 
-func JwtAuthMiddleware(secret string) func(next http.Handler) http.Handler {
+func AdminAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
@@ -26,6 +26,20 @@ func JwtAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 						userID, err := utils.ExtractIDFromToken(authToken, secret)
 						if err != nil {
 							utils.JSON(w, 401, domain.ErrorResponse{Message: err.Error()})
+							return
+						}
+
+						userRole, err := utils.ExtractRoleFromToken(authToken, secret)
+						if err != nil {
+							utils.JSON(w, 401, domain.ErrorResponse{Message: err.Error()})
+							return
+						}
+						if userRole == "" {
+							utils.JSON(w, 401, domain.ErrorResponse{Message: "invalid token"})
+							return
+						}
+						if userRole != domain.Admin {
+							utils.JSON(w, 401, domain.ErrorResponse{Message: "invalid permisions"})
 							return
 						}
 						// set user id to context

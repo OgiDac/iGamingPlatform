@@ -2,12 +2,20 @@ package domain
 
 import "context"
 
+type PlayerRole string
+
+const (
+	User  PlayerRole = "user"
+	Admin PlayerRole = "admin"
+)
+
 type Player struct {
-	Id             int     `json:"id" db:"id"`
-	Name           string  `json:"name" db:"name"`
-	Password       string  `json:"password" db:"password"`
-	Email          string  `json:"email" db:"email"`
-	AccountBalance float64 `json:"accountBalance" db:"accountBalance"`
+	Id             int        `json:"id" db:"id"`
+	Name           string     `json:"name" db:"name"`
+	Password       string     `json:"password" db:"password"`
+	Email          string     `json:"email" db:"email"`
+	AccountBalance float64    `json:"accountBalance" db:"accountBalance"`
+	Role           PlayerRole `json:"role" db:"role"`
 }
 
 type PlayerResponse struct {
@@ -15,6 +23,12 @@ type PlayerResponse struct {
 	Name           string  `json:"name"`
 	Email          string  `json:"email"`
 	AccountBalance float64 `json:"accountBalance"`
+}
+type PlayerRankingResponse struct {
+	Id            int     `json:"id"`
+	Name          string  `json:"name"`
+	Email         string  `json:"email"`
+	TotalInvested float64 `json:"totalInvested"`
 }
 
 type PlayerUseCase interface {

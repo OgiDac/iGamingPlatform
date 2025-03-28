@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"errors"
 	"net/http"
 
 	"github.com/OgiDac/iGamingPlatform/domain"
@@ -18,7 +17,7 @@ func (pc *PlayerController) GetPlayers(w http.ResponseWriter, r *http.Request) {
 
 	players, err := pc.PlayerUseCase.GetPlayers(ctx)
 	if err != nil {
-		utils.JSON(w, http.StatusBadRequest, errors.New(err.Error()))
+		utils.JSON(w, http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 

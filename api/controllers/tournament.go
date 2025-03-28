@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -23,12 +22,12 @@ func (tc *TournamentController) ExecuteDistributePrizes(w http.ResponseWriter, r
 
 	tournamentId, err := strconv.Atoi(tournamentIdString)
 	if err != nil {
-		utils.JSON(w, http.StatusBadRequest, errors.New(err.Error()))
+		utils.JSON(w, http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 	}
 
 	err = tc.TournamentUseCase.ExecuteDistributePrizes(ctx, tournamentId)
 	if err != nil {
-		utils.JSON(w, http.StatusBadRequest, errors.New(err.Error()))
+		utils.JSON(w, http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"math/rand"
 	"time"
 
@@ -18,18 +19,46 @@ type playerTournamentUseCase struct {
 	db                         *sqlx.DB
 }
 
+func (pu *playerTournamentUseCase) GetRankingList(c context.Context, tournamentId int) ([]*domain.PlayerRankResponse, error) {
+	ctx, cancel := context.WithTimeout(c, pu.contextTimeout)
+	defer cancel()
+
+	players, err := pu.playerTournamentRepository.GetRankingList(ctx, tournamentId)
+	if err != nil {
+		return nil, err
+	}
+
+	return players, nil
+}
+
 func (p *playerTournamentUseCase) MakeBet(c context.Context, playerTournamentRequest domain.PlayerTournamentRequest) (*domain.PlayerTournamentResponse, error) {
 	ctx, cancel := context.WithTimeout(c, p.contextTimeout)
 	defer cancel()
 
-	_, err := p.playerRepository.GetPlayerById(ctx, playerTournamentRequest.PlayerId)
+	player, err := p.playerRepository.GetPlayerById(ctx, playerTournamentRequest.PlayerId)
 	if err != nil {
 		return nil, err
+	}
+
+	if player.AccountBalance < playerTournamentRequest.Bet {
+		return nil, errors.New("you don't have enough money")
+	}
+
+	if playerTournamentRequest.Bet <= 0 {
+		return nil, errors.New("invalid betting amount")
 	}
 
 	tournament, err := p.tournamentRepository.GetTournamentById(ctx, playerTournamentRequest.TournamentId)
 	if err != nil {
 		return nil, err
+	}
+
+	if time.Now().Before(tournament.StartDate) {
+		return nil, errors.New("tournament has not started yet")
+	}
+
+	if time.Now().After(tournament.EndDate) {
+		return nil, errors.New("tournament has finished")
 	}
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))

@@ -21,7 +21,7 @@ func (l *loginUseCase) Login(ctx context.Context, request domain.LoginRequest, e
 
 	player, err := l.playerRepository.GetPlayerByEmail(ctx, request.Email)
 	if err != nil {
-		return "", "", err
+		return "", "", errors.New("user does not exists")
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(player.Password), []byte(request.Password)) != nil {
