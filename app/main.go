@@ -32,19 +32,22 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 func main() {
 
 	app := config.App()
+	env := app.Env
 
+	fmt.Println("Loaded CONN_STRING:", env.ConnString)
+	fmt.Println("Loaded addr:", env.ServerAddress)
 	db := app.MySql
 	defer app.CloseDatabaseConnection()
 
 	utils.MigrateDB(db)
 
-	timeout := 15 * time.Second
+	timeout := time.Duration(env.ContextTimeout) * time.Second
 	r := mux.NewRouter()
 
-	router.Setup(timeout, db, r)
+	router.Setup(env, timeout, db, r)
 
 	srv := &http.Server{
-		Addr:         ":8081",
+		Addr:         env.ServerAddress,
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,

@@ -5,12 +5,14 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/OgiDac/iGamingPlatform/config"
 	"github.com/OgiDac/iGamingPlatform/domain"
 	"github.com/OgiDac/iGamingPlatform/utils"
 )
 
 type LoginController struct {
 	LoginUseCase domain.LoginUseCase
+	Env          *config.Env
 }
 
 func (lc *LoginController) Login(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +24,7 @@ func (lc *LoginController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, refreshToken, err := lc.LoginUseCase.Login(ctx, request)
+	accessToken, refreshToken, err := lc.LoginUseCase.Login(ctx, request, lc.Env)
 	if err != nil {
 		utils.JSON(w, http.StatusBadRequest, errors.New(err.Error()))
 		return

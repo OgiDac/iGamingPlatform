@@ -3,12 +3,14 @@ package config
 import "github.com/jmoiron/sqlx"
 
 type Application struct {
+	Env   *Env
 	MySql *sqlx.DB
 }
 
 func App() Application {
 	app := &Application{}
-	app.MySql = NewDbConnection()
+	app.Env = NewEnv()
+	app.MySql = NewDbConnection(app.Env)
 	return *app
 }
 

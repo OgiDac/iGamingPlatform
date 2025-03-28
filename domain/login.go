@@ -1,6 +1,10 @@
 package domain
 
-import "context"
+import (
+	"context"
+
+	"github.com/OgiDac/iGamingPlatform/config"
+)
 
 type LoginRequest struct {
 	Email    string `form:"email" validate:"required,email"`
@@ -13,5 +17,5 @@ type LoginResponse struct {
 }
 
 type LoginUseCase interface {
-	Login(ctx context.Context, request LoginRequest) (accessToken string, refreshToken string, err error)
+	Login(ctx context.Context, request LoginRequest, env *config.Env) (accessToken string, refreshToken string, err error)
 }
