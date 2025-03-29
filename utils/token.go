@@ -46,7 +46,8 @@ func CreateRefreshToken(player *domain.Player, secret string, expiry int) (refre
 	return rt, err
 }
 
-func IsAuthorized(requestToken string, secret string) (bool, error) {
+func 
+IsAuthorized(requestToken string, secret string) (bool, error) {
 	_, err := jwt.Parse(requestToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")

@@ -34,3 +34,16 @@ func (tc *TournamentController) ExecuteDistributePrizes(w http.ResponseWriter, r
 	w.WriteHeader(http.StatusNoContent)
 	return
 }
+
+func (tc *TournamentController) GetAllTournaments(w http.ResponseWriter, r *http.Request) {
+	ctx := context.WithValue(r.Context(), "player_id", r.Context().Value("player_id"))
+
+	tournaments, err := tc.TournamentUseCase.GetAllTournaments(ctx)
+	if err != nil {
+		utils.JSON(w, http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	utils.JSON(w, http.StatusOK, tournaments)
+	return
+}

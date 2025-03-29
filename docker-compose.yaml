@@ -21,7 +21,7 @@ services:
       MYSQL_ROOT_PASSWORD: "1234"
       MYSQL_DATABASE: "igaming"
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - dbdata:/var/lib/mysql
 

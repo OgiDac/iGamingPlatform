@@ -10,13 +10,16 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func NewPlayerRouter(timeout time.Duration, db *sqlx.DB, r *mux.Router) {
+func NewPlayerRouter(timeout time.Duration, db *sqlx.DB, public *mux.Router, private *mux.Router) {
 	pr := repository.NewPlayerRepository(db)
 	pc := &controllers.PlayerController{
 		PlayerUseCase: usecase.NewPlayerUseCase(pr, timeout),
 	}
 
-	group := r.PathPrefix("/player").Subrouter()
+	publicGroup := public.PathPrefix("/player").Subrouter()
+	privateGroup := private.PathPrefix("/player").Subrouter()
 
-	group.HandleFunc("/players", pc.GetPlayers).Methods("GET")
+	publicGroup.HandleFunc("/players", pc.GetPlayers).Methods("GET")
+	privateGroup.HandleFunc("/add-funds", pc.AddFunds).Methods("PUT")
+	privateGroup.HandleFunc("/earners", pc.GetHighestEarners).Methods("GET")
 }

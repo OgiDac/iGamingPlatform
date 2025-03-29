@@ -8,21 +8,14 @@ import (
 	"os/signal"
 	"time"
 
+	_ "github.com/OgiDac/iGamingPlatform/app/docs"
 	"github.com/OgiDac/iGamingPlatform/config"
 	"github.com/OgiDac/iGamingPlatform/router"
 	"github.com/OgiDac/iGamingPlatform/utils"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
-
-// @Summary      Health Check
-// @Description  Just returns OK
-// @Tags         test
-// @Success      200  {string}  string  "ok"
-// @Router       /health [get]
-func HealthCheck(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("ok"))
-}
 
 // @title           iGaming Platform API
 // @version         1.0
@@ -42,6 +35,9 @@ func main() {
 	r := mux.NewRouter()
 
 	router.Setup(env, timeout, db, r)
+
+	// r.HandleFunc("/health", router.HealthCheck)
+	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	srv := &http.Server{
 		Addr:         env.ServerAddress,

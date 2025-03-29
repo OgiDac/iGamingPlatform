@@ -14,15 +14,7 @@ type Tournament struct {
 	ChanceToWin int       `json:"chanceToWin" db:"chanceToWin"`
 }
 
-type TournamentResponse struct {
-	Id          int       `json:"id"`
-	Name        string    `json:"name"`
-	PrizePool   float64   `json:"prizePool"`
-	StartDate   time.Time `json:"startDate"`
-	EndDate     time.Time `json:"endDate"`
-	ChanceToWin int       `json:"chanceToWin" db:"chanceToWin"`
-}
-
 type TournamentUseCase interface {
 	ExecuteDistributePrizes(c context.Context, id int) error
+	GetAllTournaments(c context.Context) ([]*Tournament, error)
 }

@@ -10,13 +10,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func NewTournamentRouter(timeout time.Duration, db *sqlx.DB, r *mux.Router) {
+func NewTournamentRouter(timeout time.Duration, db *sqlx.DB, admin *mux.Router, private *mux.Router) {
 	tr := repository.NewTournamentRepository(db)
 	tc := &controllers.TournamentController{
 		TournamentUseCase: usecase.NewTournamentUseCase(tr, timeout),
 	}
 
-	group := r.PathPrefix("/tournament").Subrouter()
+	adminGroup := admin.PathPrefix("/tournament").Subrouter()
+	privateGroup := private.PathPrefix("/tournament").Subrouter()
 
-	group.HandleFunc("/{id}/distributePrizes", tc.ExecuteDistributePrizes).Methods("PUT")
+	adminGroup.HandleFunc("/{id}/distributePrizes", tc.ExecuteDistributePrizes).Methods("PUT")
+	privateGroup.HandleFunc("/", tc.GetAllTournaments).Methods("GET")
 }

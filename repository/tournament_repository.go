@@ -10,13 +10,23 @@ import (
 type TournamentRepository interface {
 	ExecuteDistributePrizes(c context.Context, id int) error
 	GetTournamentById(c context.Context, id int) (*domain.Tournament, error)
+	GetTournaments(c context.Context) ([]*domain.Tournament, error)
 }
 
 type tournamentRepository struct {
 	db *sqlx.DB
 }
 
-// GetTournamentById implements TournamentRepository.
+func (t *tournamentRepository) GetTournaments(c context.Context) ([]*domain.Tournament, error) {
+	var tournaments []*domain.Tournament
+	err := t.db.Select(&tournaments, "SELECT * FROM tournaments")
+	if err != nil {
+		return nil, err
+	}
+
+	return tournaments, nil
+}
+
 func (t *tournamentRepository) GetTournamentById(c context.Context, id int) (*domain.Tournament, error) {
 	tournament := domain.Tournament{}
 	err := t.db.Get(&tournament, `SELECT * FROM tournaments WHERE id = ?`, id)

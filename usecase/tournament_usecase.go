@@ -13,6 +13,19 @@ type tournamentUseCase struct {
 	contextTimeout       time.Duration
 }
 
+func (t *tournamentUseCase) GetAllTournaments(c context.Context) ([]*domain.Tournament, error) {
+	ctx, cancel := context.WithTimeout(c, t.contextTimeout)
+	defer cancel()
+
+	tournaments, err := t.tournamentRepository.GetTournaments(ctx)
+	if err != nil {
+		return nil, err
+
+	}
+
+	return tournaments, nil
+}
+
 func (t *tournamentUseCase) ExecuteDistributePrizes(c context.Context, id int) error {
 	ctx, cancel := context.WithTimeout(c, t.contextTimeout)
 	defer cancel()

@@ -9,22 +9,142 @@
     "host": "localhost:8081",
     "basePath": "/",
     "paths": {
-        "/health": {
-            "get": {
-                "description": "Just returns OK",
-                "tags": [
-                    "test"
+        "/player/add-funds": {
+            "put": {
+                "description": "Add funds to a player's account",
+                "consumes": [
+                    "application/json"
                 ],
-                "summary": "Health Check",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Player"
+                ],
+                "summary": "Add Funds",
                 "responses": {
-                    "200": {
-                        "description": "ok",
+                    "204": {
+                        "description": "No Content",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
                         }
                     }
                 }
             }
+        },
+        "/player/earners": {
+            "get": {
+                "description": "Retrieve players with the highest earnings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Player"
+                ],
+                "summary": "Get Highest Earners",
+                "responses": {
+                    "200": {
+                        "description": "List of highest earners",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Player"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/player/players": {
+            "get": {
+                "description": "Retrieve list of players",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Player"
+                ],
+                "summary": "Get Players",
+                "responses": {
+                    "200": {
+                        "description": "List of players",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Player"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "domain.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Player": {
+            "type": "object",
+            "properties": {
+                "accountBalance": {
+                    "type": "number"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/domain.PlayerRole"
+                }
+            }
+        },
+        "domain.PlayerRole": {
+            "type": "string",
+            "enum": [
+                "user",
+                "admin"
+            ],
+            "x-enum-varnames": [
+                "User",
+                "Admin"
+            ]
         }
     }
 }

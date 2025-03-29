@@ -11,6 +11,7 @@ import (
 type PlayerRepository interface {
 	GetPlayerById(ctx context.Context, id int) (*domain.Player, error)
 	GetPlayers(ctx context.Context) ([]*domain.Player, error)
+	GetHighestEarners(ctx context.Context) ([]*domain.PlayerRankingResponse, error)
 	UpdatePlayer(ctx context.Context, player *domain.Player) error
 	DeletePlayer(ctx context.Context, id int) error
 	CreatePlayer(ctx context.Context, user *domain.Player) (*domain.Player, error)
@@ -28,11 +29,41 @@ func NewPlayerRepository(db *sqlx.DB) PlayerRepository {
 	}
 }
 
-func (r *playerRepository) UpdateAccountBalance(ctx context.Context, tx *sqlx.Tx, playerId int, amount float64) error {
-	_, err := tx.Exec("UPDATE players SET accountBalance = accountBalance + ? WHERE id = ?", amount, playerId)
+func (r *playerRepository) GetHighestEarners(ctx context.Context) ([]*domain.PlayerRankingResponse, error) {
+	var players []*domain.PlayerRankingResponse
+	err := r.db.Select(&players,
+		`SELECT id, name, accountBalance, RANK() OVER (ORDER BY accountBalance DESC) AS playerRank
+		  FROM players`)
 	if err != nil {
-		tx.Rollback()
+		return nil, err
+	}
+
+	return players, nil
+}
+
+func (r *playerRepository) UpdateAccountBalance(ctx context.Context, tx *sqlx.Tx, playerId int, amount float64) error {
+	var transaction *sqlx.Tx
+	var err error
+
+	if tx != nil {
+		transaction = tx
+	} else {
+		transaction, err = r.db.Beginx()
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = transaction.Exec("UPDATE players SET accountBalance = accountBalance + ? WHERE id = ?", amount, playerId)
+	if err != nil {
+		if tx == nil {
+			transaction.Rollback()
+		}
 		return err
+	}
+
+	if tx == nil {
+		return transaction.Commit()
 	}
 	return nil
 }
@@ -75,7 +106,8 @@ func (r *playerRepository) CreatePlayer(ctx context.Context, player *domain.Play
 
 	defer tx.Commit()
 
-	res, err := tx.NamedExec(`INSERT INTO players (email, password) VALUES (:email, :password)`, player)
+	res, err := tx.NamedExec(`INSERT INTO players (name, email, password, accountBalance, role)
+	 VALUES (:name, :email, :password, 0, 'user')`, player)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -88,6 +120,8 @@ func (r *playerRepository) CreatePlayer(ctx context.Context, player *domain.Play
 	}
 
 	player.Id = int(id)
+	player.AccountBalance = 0
+	player.Role = domain.PlayerRole("user")
 	return player, nil
 }
 

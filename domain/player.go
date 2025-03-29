@@ -25,10 +25,10 @@ type PlayerResponse struct {
 	AccountBalance float64 `json:"accountBalance"`
 }
 type PlayerRankingResponse struct {
-	Id            int     `json:"id"`
-	Name          string  `json:"name"`
-	Email         string  `json:"email"`
-	TotalInvested float64 `json:"totalInvested"`
+	Id             int     `json:"id" db:"id"`
+	Name           string  `json:"name" db:"name"`
+	AccountBalance string  `json:"accountBalance" db:"accountBalance"`
+	PlayerRank     float64 `json:"playerRank" db:"playerRank"`
 }
 
 type PlayerUseCase interface {
@@ -36,4 +36,6 @@ type PlayerUseCase interface {
 	GetPlayers(c context.Context) ([]*PlayerResponse, error)
 	UpdatePlayer(c context.Context, player *Player) error
 	DeletePlayer(c context.Context, id int) error
+	AddFunds(c context.Context, amount float64, playerId int) error
+	GetHighestEarners(ctx context.Context) ([]*PlayerRankingResponse, error)
 }

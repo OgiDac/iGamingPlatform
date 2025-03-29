@@ -65,6 +65,9 @@ func MigrateDB(db *sqlx.DB) {
 		[]byte("test1234"),
 		bcrypt.DefaultCost,
 	)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	_, err = db.Exec(`UPDATE players SET players.password = ?`, encryptedPassword)
 	if err != nil {

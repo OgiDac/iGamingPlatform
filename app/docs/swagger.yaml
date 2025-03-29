@@ -1,4 +1,33 @@
 basePath: /
+definitions:
+  domain.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  domain.Player:
+    properties:
+      accountBalance:
+        type: number
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        $ref: '#/definitions/domain.PlayerRole'
+    type: object
+  domain.PlayerRole:
+    enum:
+    - user
+    - admin
+    type: string
+    x-enum-varnames:
+    - User
+    - Admin
 host: localhost:8081
 info:
   contact: {}
@@ -6,15 +35,65 @@ info:
   title: iGaming Platform API
   version: "1.0"
 paths:
-  /health:
-    get:
-      description: Just returns OK
+  /player/add-funds:
+    put:
+      consumes:
+      - application/json
+      description: Add funds to a player's account
+      produces:
+      - application/json
       responses:
-        "200":
-          description: ok
+        "204":
+          description: No Content
           schema:
             type: string
-      summary: Health Check
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Add Funds
       tags:
-      - test
+      - Player
+  /player/earners:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve players with the highest earnings
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of highest earners
+          schema:
+            items:
+              $ref: '#/definitions/domain.Player'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get Highest Earners
+      tags:
+      - Player
+  /player/players:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve list of players
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of players
+          schema:
+            items:
+              $ref: '#/definitions/domain.Player'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get Players
+      tags:
+      - Player
 swagger: "2.0"
